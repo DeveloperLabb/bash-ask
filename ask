@@ -35,7 +35,7 @@ else
     prompt="${args}${stdin}"
 fi
 
-echo "Prompt: $prompt"
+# echo "Prompt: $prompt"
 
 ask() {
     local request=$(jq -n \
