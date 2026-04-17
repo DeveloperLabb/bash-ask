@@ -1,0 +1,30 @@
+#!/bin/bash
+if [[ $ASK_API_URL == "" ]];then
+    echo "API_URL is missing."
+    exit 1
+fi
+
+if [[ $ASK_MODEL == "" ]];then
+    echo "MODEL is missing."
+    exit 1
+fi
+
+if [[ $ASK_API_KEY == "" ]];then
+    echo "API_KEY is missing."
+    exit 1
+fi
+
+if [ $# -eq 0 ]; then
+  args="$*"
+fi
+
+if [[ ! -t 0 ]]; then
+  stdin=$(cat)
+fi
+
+prompt="${args},${stdin}"
+
+echo "Prompt: $prompt"
+
+
+
