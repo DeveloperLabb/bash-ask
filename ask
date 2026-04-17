@@ -14,7 +14,10 @@ if [[ $ASK_API_KEY == "" ]];then
     exit 1
 fi
 
-if [ $# -eq 0 ]; then
+args=""
+stdin=""
+
+if [[ $# != 0 ]]; then
   args="$*"
 fi
 
@@ -22,9 +25,21 @@ if [[ ! -t 0 ]]; then
   stdin=$(cat)
 fi
 
-prompt="${args},${stdin}"
+if [[ -n "$args" && -n "$stdin" ]]; then
+    prompt="${args}, ${stdin}"
+elif [[ -n "$args" ]]; then
+    prompt="$args"
+else
+    prompt="$stdin"
+fi
+
+if [[ $prompt == "" ]]; then
+    echo "Prompt is empty."
+    exit 1
+fi
 
 echo "Prompt: $prompt"
+
 
 
 
