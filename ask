@@ -1,4 +1,5 @@
 #!/bin/bash
+
 if [[ $ASK_API_URL == "" ]];then
     echo "ASK_API_URL is missing."
     exit 1
@@ -36,6 +37,32 @@ fi
 
 echo "Prompt: $prompt"
 
+ask() {
+    local request=$(jq -n \
+    --arg model "${ASK_MODEL}" \
+    --arg prompt "${prompt}" \
+    '{
+    model: $model,
+    messages: [
+        {
+        role: "system",
+        content: "You are a CLI tool. Output plain text only."
+        },
+        {
+        role: "user",
+        content: $prompt  
+        }
+    ]
+    }')
+    
+    curl "${ASK_API_URL}" -s \
+        -H "Content-Type: application/json" \
+        -H "Authorization: Bearer ${ASK_API_KEY}" \
+        -d "${request}" \
+    | jq -r '.choices[0].message.content // .error.message'
+}
+
+ask
 
 
 
