@@ -1,16 +1,16 @@
 #!/bin/bash
 if [[ $ASK_API_URL == "" ]];then
-    echo "API_URL is missing."
+    echo "ASK_API_URL is missing."
     exit 1
 fi
 
 if [[ $ASK_MODEL == "" ]];then
-    echo "MODEL is missing."
+    echo "ASK_MODEL is missing."
     exit 1
 fi
 
 if [[ $ASK_API_KEY == "" ]];then
-    echo "API_KEY is missing."
+    echo "ASK_API_KEY is missing."
     exit 1
 fi
 
@@ -25,17 +25,13 @@ if [[ ! -t 0 ]]; then
   stdin=$(cat)
 fi
 
-if [[ -n "$args" && -n "$stdin" ]]; then
-    prompt="${args}, ${stdin}"
-elif [[ -n "$args" ]]; then
-    prompt="$args"
-else
-    prompt="$stdin"
-fi
-
-if [[ $prompt == "" ]]; then
-    echo "Prompt is empty."
+if [[ -z "$args" && -z "$stdin" ]]; then
+    echo "Error: No input provided."
     exit 1
+elif [[ -n "$args" && -n "$stdin" ]]; then
+    prompt="${args}, ${stdin}"
+else
+    prompt="${args}${stdin}"
 fi
 
 echo "Prompt: $prompt"
