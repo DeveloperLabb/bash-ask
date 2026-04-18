@@ -33,12 +33,12 @@ if [[ -z "$args" && -z "$stdin" ]]; then
     echo "Error: No input provided. Prompt is required either as an argument or through piped input."
     exit 1
 elif [[ -n "$args" && -n "$stdin" ]]; then
-    prompt="${args}, ${stdin}"
+    prompt="${args}"$'\n'"${stdin}"
 else
     prompt="${args}${stdin}"
 fi
 
-# echo "Prompt: $prompt"
+#echo "$prompt"
 
 ask() {
     local request=$(jq -n \
@@ -49,8 +49,7 @@ ask() {
     messages: [
         {
         role: "system",
-        content: "You are a CLI tool. Output plain text only. No
-            yapping. Keep the output concise."
+        content: "You are a CLI tool. Output plain text only. No yapping. Keep the output concise."
         },
         {
         role: "user",
