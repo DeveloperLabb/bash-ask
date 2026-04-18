@@ -2,6 +2,17 @@
 
 Minimal CLI wrapper that sends a prompt to a chat-completions style API using Bash.
 
+Copyright (C) 2026 Mert Koğuş
+
+## License
+
+This project is licensed under the GNU General Public License v3.0 or later.
+See [LICENSE](LICENSE) for details.
+
+## Contributing
+
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting changes.
+
 ## Requirements
 
 - `bash`

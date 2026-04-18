@@ -1,17 +1,20 @@
 #!/bin/bash
 
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mert Koğuş
+
 if [[ $ASK_API_URL == "" ]];then
-    echo "ASK_API_URL is missing."
+    echo "ASK_API_URL environment variable is missing."
     exit 1
 fi
 
 if [[ $ASK_MODEL == "" ]];then
-    echo "ASK_MODEL is missing."
+    echo "ASK_MODEL environment variable is missing."
     exit 1
 fi
 
 if [[ $ASK_API_KEY == "" ]];then
-    echo "ASK_API_KEY is missing."
+    echo "ASK_API_KEY environment variable is missing."
     exit 1
 fi
 
@@ -27,7 +30,7 @@ if [[ ! -t 0 ]]; then
 fi
 
 if [[ -z "$args" && -z "$stdin" ]]; then
-    echo "Error: No input provided."
+    echo "Error: No input provided. Prompt is required either as an argument or through piped input."
     exit 1
 elif [[ -n "$args" && -n "$stdin" ]]; then
     prompt="${args}, ${stdin}"
@@ -46,7 +49,8 @@ ask() {
     messages: [
         {
         role: "system",
-        content: "You are a CLI tool. Output plain text only."
+        content: "You are a CLI tool. Output plain text only. No
+            yapping. Keep the output concise."
         },
         {
         role: "user",
@@ -63,6 +67,5 @@ ask() {
 }
 
 ask
-
 
 
