@@ -6,7 +6,7 @@ Copyright (C) 2026 Mert Koğuş
 
 ## License
 
-This project is licensed under the GNU General Public License v3.0 or later.
+This project is licensed under the MIT License.
 See [LICENSE](LICENSE) for details.
 
 ## Contributing
@@ -73,5 +73,5 @@ Welcome to the team! We are excited to have you here and look forward to buildin
 
 - Expects a response compatible with `.choices[0].message.content`.
 - No retry, timeout, or backoff logic for network/API failures.
-- Prints the full prompt before sending, which may expose sensitive input in terminal history.
+- Assumes successful responses return HTTP `200`.
 - No conversation state; each call is a single independent request.

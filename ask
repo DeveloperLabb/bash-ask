@@ -1,8 +1,9 @@
 #!/bin/bash
 
-# SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright (C) 2026 Mert Koğuş
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Mert Koğuş
 
+# Check required env variables
 if [[ $ASK_API_URL == "" ]];then
     echo "ASK_API_URL environment variable is missing."
     exit 1
@@ -18,33 +19,38 @@ if [[ $ASK_API_KEY == "" ]];then
     exit 1
 fi
 
-args=""
-stdin=""
+# Initialize input holders
+ARGS=""
+STDIN=""
 
+# Read CLI arguments
 if [[ $# != 0 ]]; then
-  args="$*"
+  ARGS="$*"
 fi
 
+# Read piped input
 if [[ ! -t 0 ]]; then
-  stdin=$(cat)
+  STDIN=$(cat)
 fi
 
-if [[ -z "$args" && -z "$stdin" ]]; then
+# Build prompt from args + stdin
+if [[ -z "$ARGS" && -z "$STDIN" ]]; then
     echo "Error: No input provided. Prompt is required either as an argument or through piped input."
     exit 1
-elif [[ -n "$args" && -n "$stdin" ]]; then
-    prompt="${args}"$'\n'"${stdin}"
+elif [[ -n "$ARGS" && -n "$STDIN" ]]; then
+    PROMPT="${ARGS}"$'\n'"${STDIN}"
 else
-    prompt="${args}${stdin}"
+    PROMPT="${ARGS}${STDIN}"
 fi
 
-#echo "$prompt"
+# Debug: print prompt
+# echo "$PROMPT"
 
-ask() {
-    local request=$(jq -n \
-    --arg model "${ASK_MODEL}" \
-    --arg prompt "${prompt}" \
-    '{
+# Build JSON request body using jq
+REQUEST=$(jq -n \
+--arg model "${ASK_MODEL}" \
+--arg prompt "${PROMPT}" \
+'{
     model: $model,
     messages: [
         {
@@ -56,15 +62,42 @@ ask() {
         content: $prompt  
         }
     ]
-    }')
-    
-    curl "${ASK_API_URL}" -s \
-        -H "Content-Type: application/json" \
-        -H "Authorization: Bearer ${ASK_API_KEY}" \
-        -d "${request}" \
-    | jq -r '.choices[0].message.content // .error.message'
-}
+}')
 
-ask
+# Send request with curl + append HTTP status 
+RESPONSE=$(curl "${ASK_API_URL}" -s \
+    -w "\n%{http_code}" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer ${ASK_API_KEY}" \
+    -d "${REQUEST}")
 
+# Check curl execution status
+CURL_EXIT=$?
+if [[ $CURL_EXIT -ne 0 ]]; then
+    echo "Error: Request failed."
+    exit 1
+fi
+
+# Extract HTTP status code and body
+STATUS=$(echo "$RESPONSE" | sed -n '$p')
+BODY=$(echo "$RESPONSE" | sed '$d')
+
+# Validate JSON response
+echo "$BODY" | jq . >/dev/null 2>&1
+if [[ $? -ne 0 ]]; then
+    echo "Error: Invalid response (not JSON)."
+    exit 1
+fi
+
+# Check HTTP status
+if [[ "$STATUS" != "200" ]]; then
+    # Read possible API error message
+    ERROR=$(echo "$BODY" | jq -r '.error.message // .error // "No message provided"')
+    echo "HTTP Error: $STATUS - $ERROR"
+    exit 1
+fi
+
+# Output Extraction
+OUTPUT=$(echo "$BODY" | jq -r '.choices[0].message.content')
+echo "$OUTPUT"
 
